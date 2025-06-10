@@ -187,9 +187,13 @@ def parse_cg_file(fname, uniforms, sizes, conditionals):
 
         if re.match(r"^\s*uniform", line):
 
-            res = re.match(r"uniform ([\d\w]*) ([\d\w]*)")
-            type = res.groups(1)
-            name = res.groups(2)
+            res = re.match(r"uniform ([\d\w]*) ([\d\w]*)", line)
+            if not res:
+                line = fs.readline()
+                continue
+
+            type = res.group(1)
+            name = res.group(2)
 
             uniforms.append(name)
 
@@ -198,10 +202,13 @@ def parse_cg_file(fname, uniforms, sizes, conditionals):
             else:
                 t = re.match(r"float(\d)x(\d)", type)
                 if t:
-                    sizes.append(int(t.groups(1)) * int(t.groups(2)))
+                    sizes.append(int(t.group(1)) * int(t.group(2)))
                 else:
                     t = re.match(r"float(\d)", type)
-                    sizes.append(int(t.groups(1)))
+                    if t:
+                        sizes.append(int(t.group(1)))
+                    else:
+                        sizes.append(1)
 
             if line.find("[branch]") != -1:
                 conditionals.append(name)
